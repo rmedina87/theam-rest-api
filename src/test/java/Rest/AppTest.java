@@ -1,4 +1,4 @@
-package Rest-API;
+package Rest;
 
 import static org.junit.Assert.assertTrue;
 

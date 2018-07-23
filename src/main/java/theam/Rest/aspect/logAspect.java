@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.context.annotation.Configuration;
 
 
@@ -23,7 +24,7 @@ import org.springframework.context.annotation.Configuration;
 public class logAspect {
     private static final Logger LOG = LogManager.getLogger(logAspect.class);
 
-    @Before("execution(* theam.Rest.*.*(..))")
+    @Before("execution(* theam.Rest..*.*(..))")
     public void runBeforeMethod(JoinPoint jp){
         LOG.info("ASPECT >> Entering Method: " + jp.getSignature().getName());
         LOG.info("ASPECT >> Class Name: " + jp.getSignature().getDeclaringType());

@@ -7,9 +7,25 @@
  * Author:  equipo
  * Created: 23-jul-2018
  */
-CREATE TABLE Customer ( 
-   id LONG NOT NULL PRIMARY KEY, 
+CREATE TABLE Customers ( 
+   id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY, 
    name VARCHAR(50) NOT NULL, 
    surname VARCHAR(20) NOT NULL, 
-   photo VARCHAR(255), 
+   photo VARCHAR(255),
+   last_User_Updated LONG DEFAULT -1,  
+);
+CREATE TABLE Users (
+    id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_name VARCHAR(50) NOT NULL,
+    user_email VARCHAR(255) NOT NULL,
+    user_password VARCHAR(50) NOT NULL,
+);
+CREATE TABLE Roles (
+    id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(10) NOT NULL,
+);
+CREATE TABLE User_Role (
+    id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id LONG NOT NULL UNIQUE,
+    role_id LONG NOT NULL,
 );

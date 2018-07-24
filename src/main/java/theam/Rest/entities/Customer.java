@@ -9,28 +9,40 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 /**
  *
  * @author equipo
  */
 @Entity
-public class Customer {
+@Table(name="Customers")
+public class Customer{
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
     private String surname;
     private String photo;
+    private Long lastUserUpdated = new Long(-1);
 
     public Customer() {
     }
 
-    public Customer(Long id, String name, String surname, String photo) {
+    public Customer(Long id, String name, String surname, String photo, Long lastUserUpdated) {
         this.id = id;
         this.name = name;
         this.surname = surname;
         this.photo = photo;
+        this.lastUserUpdated = lastUserUpdated;
+    }
+
+    public Long getLastUserUpdated() {
+        return lastUserUpdated;
+    }
+
+    public void setLastUserUpdated(Long lastUserUpdated) {
+        this.lastUserUpdated = lastUserUpdated;
     }
 
 
@@ -46,6 +58,7 @@ public class Customer {
         return name;
     }
 
+ 
     public void setName(String name) {
         this.name = name;
     }
@@ -65,11 +78,13 @@ public class Customer {
     public void setPhoto(String photo) {
         this.photo = photo;
     }
-    
 
     @Override
     public String toString() {
-        return "Customer{" + "id=" + id + ", name=" + name + ", psNumber=" + surname + '}';
+        return "Customer{" + "id=" + id + ", name=" + name + ", surname=" + surname + ", photo=" + photo + ", lastUserUpdated=" + lastUserUpdated + '}';
     }
+    
+
+ 
     
 }

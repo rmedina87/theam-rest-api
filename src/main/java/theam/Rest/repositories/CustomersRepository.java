@@ -17,6 +17,7 @@ import theam.Rest.entities.Customer;
 @Repository
 public interface CustomersRepository extends CrudRepository<Customer, Long> {
     List<Customer> findByName(String name);
+
 }
     
 

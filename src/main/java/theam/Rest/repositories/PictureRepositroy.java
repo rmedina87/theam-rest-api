@@ -5,13 +5,14 @@
  */
 package theam.Rest.repositories;
 
+import theam.Rest.entities.Picture;
+import java.util.List;
 import org.springframework.data.repository.CrudRepository;
-import theam.Rest.entities.Users;
 
 /**
  *
  * @author equipo
  */
-public interface UsersRepository extends CrudRepository<Users, Long>{
-    Users findOneByUsername(String username);
+public interface PictureRepositroy extends CrudRepository<Picture, Long>{
+    Picture findByPictureName(String pictureName);
 }

@@ -5,16 +5,21 @@
  */
 package theam.Rest.controller;
 
+import java.security.Principal;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import theam.Rest.entities.Customer;
+import theam.Rest.entities.Users;
 import theam.Rest.repositories.CustomersRepository;
+import theam.Rest.repositories.UsersRepository;
 import theam.Rest.utils.Tools;
 
 /**
@@ -27,50 +32,92 @@ import theam.Rest.utils.Tools;
 @RestController
 public class CustomerController {
     
-    private Long userId = new Long(1); //Hardodeado hasta implementar Auth
+    private Users currentUser;
     
-      @Autowired
+    @Autowired
     DataSource dataSource;
 
     @Autowired
     CustomersRepository customerRepository;
     
+    @Autowired
+    PictureController pictureController;
+    
+    @Autowired
+    UsersRepository usersRepository;
+    
+    private void setCurrentUser(Principal principal){
+        String username = principal.getName();
+        currentUser = usersRepository.findOneByUsername(username);       
+    }
  
     @RequestMapping(value = "/customers", method = RequestMethod.GET)
-    public List<Customer> getAllCustomer(){
-        return (List<Customer>) customerRepository.findAll();
+    public ResponseEntity<?> getAllCustomer(Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "USER")){
+            List<Customer> response = (List<Customer>) customerRepository.findAll();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+        }
     }
     
     @RequestMapping(value= "/customers/{id}", method = RequestMethod.GET)
-    public Customer getCustomerById(@PathVariable ("id") Long id){
-         Customer customer = customerRepository.findById(id).get();
-        return customer;
+    public ResponseEntity<?> getCustomerById(@PathVariable ("id") Long id, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "USER")){
+            Customer response = customerRepository.findById(id).get();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+
+        }
+
     }
     
     @RequestMapping(value = "/customers", method = RequestMethod.POST)
-    public Long addCustomer(@RequestBody Customer customer){
-        //hardcodeado hasta implementar Auth
-        customer.setLastUserUpdated(userId);
-        customerRepository.save(customer);
-        long savedId = customer.getId();
-        return savedId;
+    public ResponseEntity<?> addCustomer(@RequestBody Customer customer, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "USER")){
+             customer.setLastUserUpdated(currentUser.getId());
+             customerRepository.save(customer);
+            long response = customer.getId();            
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+
+        } 
+
     }
     
     @RequestMapping(value = "/customers/{id}", method = RequestMethod.POST)
-    public Customer updateCustomer(@PathVariable("id") Long id, @RequestBody Customer uCustomer){
-        Customer oldCustomer = customerRepository.findById(id).get();
-        if(!Tools.checkNull(uCustomer.getName())) oldCustomer.setName(uCustomer.getName());
-        if(!Tools.checkNull(uCustomer.getPhoto()))oldCustomer.setPhoto(uCustomer.getPhoto());
-        if(!Tools.checkNull(uCustomer.getSurname()))oldCustomer.setSurname(uCustomer.getSurname());
-        //hardcodeado hasta implementar Auth
-        oldCustomer.setLastUserUpdated(userId);
-        customerRepository.save(oldCustomer);
-        return oldCustomer;
-        
+    public ResponseEntity<?> updateCustomer(@PathVariable("id") Long id, @RequestBody Customer uCustomer, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "USER")){
+            Customer oldCustomer = customerRepository.findById(id).get();
+            if(!Tools.checkNull(uCustomer.getName())) oldCustomer.setName(uCustomer.getName());
+            if(!Tools.checkNull(uCustomer.getPhoto()))oldCustomer.setPhoto(uCustomer.getPhoto());
+            if(!Tools.checkNull(uCustomer.getSurname()))oldCustomer.setSurname(uCustomer.getSurname());
+             oldCustomer.setLastUserUpdated(currentUser.getId());
+             customerRepository.save(oldCustomer);
+            Customer response = oldCustomer;          
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+
+        }         
+       
     }
     
     @RequestMapping(value = "customers/{id}", method = RequestMethod.DELETE)
-    public void deleteCustomer(@PathVariable("id") Long id){
+    public ResponseEntity<?> deleteCustomer(@PathVariable("id") Long id, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "USER")){
          customerRepository.deleteById(id);
+         return new ResponseEntity<>("DELETED", HttpStatus.ACCEPTED);
+        }else{
+         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+            
+        }
     }
 }

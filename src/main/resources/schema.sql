@@ -16,9 +16,10 @@ CREATE TABLE Customers (
 );
 CREATE TABLE Users (
     id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_name VARCHAR(50) NOT NULL,
-    user_email VARCHAR(255) NOT NULL,
-    user_password VARCHAR(50) NOT NULL,
+    username VARCHAR(128) UNIQUE NOT NULL,
+    user_email VARCHAR(50) NOT NULL,
+    password VARCHAR(256) NOT NULL,
+    enabled BOOL,
 );
 CREATE TABLE Roles (
     id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -28,4 +29,10 @@ CREATE TABLE User_Role (
     id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id LONG NOT NULL UNIQUE,
     role_id LONG NOT NULL,
+);
+CREATE TABLE picture (
+    id LONG NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    picture_name VARCHAR(255) NOT NULL,
+    content_type VARCHAR(10) NOT NULL,
+    content longblob,
 );

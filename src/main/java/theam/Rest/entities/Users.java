@@ -5,6 +5,9 @@
  */
 package theam.Rest.entities;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,6 +19,8 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  *
@@ -24,14 +29,16 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "Users")
-public class Users {
+public class Users implements UserDetails{
+    static final long serialVersionUID = 1L;
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String userName;
+    private String username;
     private String userEmail;
-    private String userPassword;
+    private String password;
+    private boolean enabled;
     
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinTable(
@@ -47,11 +54,50 @@ public class Users {
     public Users() {
     }
 
-    public Users(Long id, String userName, String userEmail, String userPassword, Roles rol) {
+    public Users(Long id, String username, String userEmail, String password, boolean enabled, Roles rol) {
         this.id = id;
-        this.userName = userName;
+        this.username = username;
         this.userEmail = userEmail;
-        this.userPassword = userPassword;
+        this.password = password;
+        this.enabled = enabled;
+        this.rol = rol;
+    }
+    
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
+        return authorities;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public Long getId() {
@@ -62,14 +108,6 @@ public class Users {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
     public String getUserEmail() {
         return userEmail;
     }
@@ -78,27 +116,24 @@ public class Users {
         this.userEmail = userEmail;
     }
 
-    public String getUserPassword() {
-        return userPassword;
-    }
-
-    public void setUserPassword(String userPassword) {
-        this.userPassword = userPassword;
-    }
-
-    public Roles getRol() {
-        return rol;
+    public String getRol() {
+        return rol.getRoleName();
     }
 
     public void setRol(Roles rol) {
         this.rol = rol;
     }
 
-    @Override
-    public String toString() {
-        return "Users{" + "id=" + id + ", userName=" + userName + ", userEmail=" + userEmail + ", userPassword=" + userPassword + ", rol=" + rol + '}';
+    public void setUsername(String username) {
+        this.username = username;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
     
 }

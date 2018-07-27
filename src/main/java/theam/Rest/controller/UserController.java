@@ -5,9 +5,12 @@
  */
 package theam.Rest.controller;
 
+import java.security.Principal;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +30,8 @@ import theam.Rest.utils.Tools;
 @RestController
 public class UserController {
     
+    private Users currentUser;
+    
     @Autowired
     DataSource dataSource;
     
@@ -35,46 +40,89 @@ public class UserController {
     
     @Autowired
     RolesRepository rolesRepository;
+
+
+    private void setCurrentUser(Principal principal){
+        String username = principal.getName();
+        currentUser = usersRepository.findOneByUsername(username);       
+    }
     
     @RequestMapping(value = "/users", method = RequestMethod.GET)
-    public List<Users> getAllUsers(){
-        return (List<Users>) usersRepository.findAll();
+    public ResponseEntity<?> getAllUsers(Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
+           List<Users> response =  (List<Users>) usersRepository.findAll();
+           return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+              return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);          
+        }        
     }
     
     @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
-    public Users getUser(@PathVariable("id") Long id){
-        Users user = usersRepository.findById(id).get();
-        return user;
+    public ResponseEntity<?> getUser(@PathVariable("id") Long id, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
+           Users response = usersRepository.findById(id).get();
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+        }        
     }
     
     @RequestMapping(value = "/users", method = RequestMethod.POST)
-    public Users addUser(@RequestBody Users user){
-        usersRepository.save(user);
-        return user;
+    public ResponseEntity<?> addUser(@RequestBody Users user, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
+           Users response = user;
+           usersRepository.save(user);
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+        }
     }
     
     @RequestMapping(value = "/users/{id}", method = RequestMethod.POST)
-    public Users updateUser(@RequestBody Users user, @PathVariable("id") Long id){
-        Users oldUser = usersRepository.findById(id).get();
-        if(!Tools.checkNull(user.getUserName())) oldUser.setUserName(user.getUserName());
-        if(!Tools.checkNull(user.getUserEmail())) oldUser.setUserEmail(user.getUserEmail());
-        if(!Tools.checkNull(user.getUserPassword())) oldUser.setUserPassword(user.getUserPassword());
-        return oldUser;
-    }
-    
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
-    public void deleteUser(@PathVariable("id") Long id){
-        usersRepository.deleteById(id);
+    public ResponseEntity<?> updateUser(@RequestBody Users user, @PathVariable("id") Long id, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
+           Users response = usersRepository.findById(id).get();
+            if(!Tools.checkNull(user.getUsername())) response.setUsername(user.getUsername());
+            if(!Tools.checkNull(user.getUserEmail())) response.setUserEmail(user.getUserEmail());
+            if(!Tools.checkNull(user.getPassword())) response.setPassword(user.getPassword());           
+           usersRepository.save(response);
+            return new ResponseEntity<>(response, HttpStatus.ACCEPTED);
+        }else{
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+        }
         
     }
     
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
+         usersRepository.deleteById(id);
+         return new ResponseEntity<>("DELETED", HttpStatus.ACCEPTED);
+        }else{
+         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+            
+        }        
+       
+    }
+    
     @RequestMapping(value = "users/{id}/change", method = RequestMethod.GET)
-    public Users updateRole(@PathVariable("id") Long id){
-        Roles rol = rolesRepository.findByRoleName("ADMIN");
-        Users user = usersRepository.findById(id).get();
-        user.setRol(rol);
-        usersRepository.save(user);
-        return user;
+    public ResponseEntity<?> updateRole(@PathVariable("id") Long id, Principal principal){
+        this.setCurrentUser(principal);
+        if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
+            Roles rol = rolesRepository.findByRoleName("ADMIN");
+            Users response = usersRepository.findById(id).get();
+            response.setRol(rol);
+            usersRepository.save(response);
+         return new ResponseEntity<>(response, HttpStatus.OK);
+        }else{
+         return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
+            
+        }        
     }
     
 }

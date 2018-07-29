@@ -22,6 +22,8 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
 
     @Value("${spring.security.oauth2.resource.id}")
     private String resourceId;
+    
+
 
     @Override
     public void configure(ResourceServerSecurityConfigurer resources) {
@@ -36,7 +38,7 @@ public class ResourceServerConfiguration extends ResourceServerConfigurerAdapter
                 .antMatchers("/bye").permitAll()
                 .antMatchers("/customers*").authenticated()
                 .antMatchers("/users*").authenticated()
-                .antMatchers("/pictures*").authenticated();
+                .antMatchers("/pictures/**").authenticated();
 
     }
 

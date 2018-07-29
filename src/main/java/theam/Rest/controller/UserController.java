@@ -11,6 +11,8 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,6 +42,9 @@ public class UserController {
     
     @Autowired
     RolesRepository rolesRepository;
+    
+    @Autowired
+    PasswordEncoder encoder;
 
 
     private void setCurrentUser(Principal principal){
@@ -74,7 +79,12 @@ public class UserController {
         this.setCurrentUser(principal);
         if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
            Users response = user;
-           usersRepository.save(user);
+           String noEncryptedPassword = user.getPassword();
+           response.setPassword(encoder.encode(noEncryptedPassword));
+            Roles rol = rolesRepository.findByRoleName("USER");
+            response.setRol(rol);
+            response.setEnabled(true);
+            usersRepository.save(response);
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         }else{
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);

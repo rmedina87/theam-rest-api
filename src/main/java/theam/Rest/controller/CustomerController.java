@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import theam.Rest.entities.Customer;
-import theam.Rest.entities.Users;
+import theam.Rest.entities.User;
+import theam.Rest.utils.Tools;
 import theam.Rest.repositories.CustomersRepository;
 import theam.Rest.repositories.UsersRepository;
-import theam.Rest.utils.Tools;
 
 /**
  *
@@ -32,7 +32,7 @@ import theam.Rest.utils.Tools;
 @RestController
 public class CustomerController {
     
-    private Users currentUser;
+    private User currentUser;
     
     @Autowired
     DataSource dataSource;

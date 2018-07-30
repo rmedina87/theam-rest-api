@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import theam.Rest.entities.Roles;
-import theam.Rest.entities.Users;
+import theam.Rest.entities.User;
+import theam.Rest.utils.Tools;
 import theam.Rest.repositories.RolesRepository;
 import theam.Rest.repositories.UsersRepository;
-import theam.Rest.utils.Tools;
 
 /**
  *
@@ -32,7 +32,7 @@ import theam.Rest.utils.Tools;
 @RestController
 public class UserController {
     
-    private Users currentUser;
+    private User currentUser;
     
     @Autowired
     DataSource dataSource;
@@ -56,7 +56,7 @@ public class UserController {
     public ResponseEntity<?> getAllUsers(Principal principal){
         this.setCurrentUser(principal);
         if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
-           List<Users> response =  (List<Users>) usersRepository.findAll();
+           List<User> response =  (List<User>) usersRepository.findAll();
            return new ResponseEntity<>(response, HttpStatus.OK);
         }else{
               return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);          
@@ -67,7 +67,7 @@ public class UserController {
     public ResponseEntity<?> getUser(@PathVariable("id") Long id, Principal principal){
         this.setCurrentUser(principal);
         if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
-           Users response = usersRepository.findById(id).get();
+           User response = usersRepository.findById(id).get();
             return new ResponseEntity<>(response, HttpStatus.OK);
         }else{
             return new ResponseEntity<>(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED);
@@ -75,10 +75,10 @@ public class UserController {
     }
     
     @RequestMapping(value = "/users", method = RequestMethod.POST)
-    public ResponseEntity<?> addUser(@RequestBody Users user, Principal principal){
+    public ResponseEntity<?> addUser(@RequestBody User user, Principal principal){
         this.setCurrentUser(principal);
         if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
-           Users response = user;
+           User response = user;
            String noEncryptedPassword = user.getPassword();
            response.setPassword(encoder.encode(noEncryptedPassword));
             Roles rol = rolesRepository.findByRoleName("USER");
@@ -92,10 +92,10 @@ public class UserController {
     }
     
     @RequestMapping(value = "/users/{id}", method = RequestMethod.POST)
-    public ResponseEntity<?> updateUser(@RequestBody Users user, @PathVariable("id") Long id, Principal principal){
+    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable("id") Long id, Principal principal){
         this.setCurrentUser(principal);
         if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
-           Users response = usersRepository.findById(id).get();
+           User response = usersRepository.findById(id).get();
             if(!Tools.checkNull(user.getUsername())) response.setUsername(user.getUsername());
             if(!Tools.checkNull(user.getUserEmail())) response.setUserEmail(user.getUserEmail());
             if(!Tools.checkNull(user.getPassword())) response.setPassword(user.getPassword());           
@@ -125,7 +125,7 @@ public class UserController {
         this.setCurrentUser(principal);
         if(Tools.isAuthorized(currentUser.getRol(), "ADMIN")){
             Roles rol = rolesRepository.findByRoleName("ADMIN");
-            Users response = usersRepository.findById(id).get();
+            User response = usersRepository.findById(id).get();
             response.setRol(rol);
             usersRepository.save(response);
          return new ResponseEntity<>(response, HttpStatus.OK);

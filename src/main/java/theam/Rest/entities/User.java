@@ -29,7 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "Users")
-public class Users implements UserDetails{
+public class User implements UserDetails{
     static final long serialVersionUID = 1L;
     
     @Id
@@ -51,10 +51,10 @@ public class Users implements UserDetails{
                     referencedColumnName = "id"))
     private Roles rol;
 
-    public Users() {
+    public User() {
     }
 
-    public Users(Long id, String username, String userEmail, String password, boolean enabled, Roles rol) {
+    public User(Long id, String username, String userEmail, String password, boolean enabled, Roles rol) {
         this.id = id;
         this.username = username;
         this.userEmail = userEmail;

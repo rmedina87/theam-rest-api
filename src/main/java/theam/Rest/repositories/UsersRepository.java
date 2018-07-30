@@ -6,12 +6,12 @@
 package theam.Rest.repositories;
 
 import org.springframework.data.repository.CrudRepository;
-import theam.Rest.entities.Users;
+import theam.Rest.entities.User;
 
 /**
  *
  * @author equipo
  */
-public interface UsersRepository extends CrudRepository<Users, Long>{
-    Users findOneByUsername(String username);
+public interface UsersRepository extends CrudRepository<User, Long>{
+    User findOneByUsername(String username);
 }

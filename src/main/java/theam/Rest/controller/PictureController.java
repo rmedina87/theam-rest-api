@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import theam.Rest.entities.Customer;
-import theam.Rest.entities.Users;
+import theam.Rest.entities.User;
 import theam.Rest.repositories.PictureRepositroy;
+import theam.Rest.utils.Tools;
 import theam.Rest.repositories.CustomersRepository;
 import theam.Rest.repositories.UsersRepository;
-import theam.Rest.utils.Tools;
 
 /**
  *
@@ -34,7 +34,7 @@ import theam.Rest.utils.Tools;
 @RestController
 public class PictureController {
 
-    private Users currentUser;
+    private User currentUser;
 
     @Autowired
     private PictureRepositroy pictureRepositroy;
@@ -71,6 +71,7 @@ public class PictureController {
             String randomFileName = Tools.generateRandomText(7) + "-" + customer.getName();
             String picPath = "pictures/image/" + randomFileName;
             customer.setPhoto(picPath);
+            customer.setLastUserUpdated(this.currentUser.getId());
             Picture response = new Picture();
             try {
                 response.setContentType(pictureFile.getContentType());
